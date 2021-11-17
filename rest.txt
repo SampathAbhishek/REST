@@ -1,0 +1,202 @@
+REST:-(set of rules web developers can follow while building an api).
+REpresntational State Transfer.
+It's basically an archtecture.
+Before there were SOAP,GraphQL,and falcor.
+
+Rules:-
+1.Use HTTP Request Verbs
+five HTTP Request Verbs:-(GET,POST,PUT,PATCH and DELETE).
+
+a)GET:-
+app.get(function(req,res)){
+
+}
+get is similar to read in CRUD operations of MONGOOSE(analogy).
+
+b)POST:-(create in analogy)
+app.post(function(req,res)){
+
+}
+when a user posts something we receive that using req and store
+and send res as success.
+This is quite similar to create in mongoose.
+Because ,when someones posts something we create a document
+inside the collections of our database.
+So,try to relate both by these analogies.
+c)PUT and PATCH
+(similar to update)
+
+what is diff bet put and patch?
+just imagine u ordered a bycycle in amazon.
+
+ok,so now u got ur cycle little misplaced and damaged.
+
+
+So, put --> will give new bycycle(send new document to collection)
+and,patch---> will simply change tyre.(update one parameter of document.)
+d)DELETE is same as DELETE in crud
+
+
+2.Use Specific Pattern Of Routes/EndPoints URLS.
+simply the road u will choose to access certain peace of information.
+***********************************
+we will be using GUI for mongoose
+which is robo 3T.
+same like mysql workbench
+It is easy to work since being a GUI.
+also feel free to try all those learn mongoose commands which u did in CLI.
+
+
+follow th stpes of challenge and create node server check with port listening to 3000
+and connect a mongoDB server.
+
+
+get request is done:-
+mongoose.connect('mongodb://localhost:27017/wikiDB',{useNewUrlParser:true});
+const articleSchema = mongoose.Schema({
+  title:String,
+  content:String
+});
+const Article = mongoose.model("Article",articleSchema);
+
+app.get("/articles",function(req,res){
+  Article.find(function(err,foundArticles){
+    if(!err)
+    {
+      res.send(foundArticles);
+    }
+    else
+    {
+      res.send(err);
+    }
+  });
+});
+what about post?
+it can be done without having our api a front end.
+Postman will help in acheiving it.
+
+
+Inside postman we can change the setting to get request and strt creating our oen key and value pair
+and it also provides form kinda like front end and send request
+This is caught on our command line.
+
+app.post("/articles",function(req,res)
+{
+    const newArticle = new Article({
+      title:req.body.title,
+      content:req.body.content
+    });
+    newArticle.save(function(err)
+  {
+    if(!err){
+      res.send("Succesfully added a new article.");
+    }
+    else{
+      res.send(err);
+    }
+  });
+});
+
+app.delete("/articles",function(req,res){
+  Article.deleteMany({title:'jact Bauer'},function(err)
+{
+  if(!err){
+    res.send("Deleted from mongoDB database successfully.");
+  }
+  else{
+    res.send(err);
+  }
+})
+});
+
+
+Chained Route Handlers Using Express:-
+app.route("/articles").get().post().delete();
+and add repective call back function here.This is a shortcut or short method of calling routes using express.
+
+/********************Requests targeting a specific article*****/
+app.route("/articles/:token")
+.get(function(req,res)
+{
+    Article.findOne({title:req.params.token},function(err,foundArticle)
+    {
+      if(!err){
+        if(foundArticle){
+          res.send(foundArticle);
+        }
+        else{
+          res.send("No articles matching that title");
+        }
+      }
+    });
+});
+
+Note:- In urls we cant use space or special characters same like that password
+in mongoDB you should give %20 like that check documenation or google.
+
+/********************Requests targeting a specific article*****/
+app.route("/articles/:token")
+.get(function(req,res)
+{
+    Article.findOne({title:req.params.token},function(err,foundArticle)
+    {
+      if(!err){
+        if(foundArticle){
+          res.send(foundArticle);
+        }
+        else{
+          res.send("No articles matching that title");
+        }
+      }
+    });
+})
+.put(function(req,res)
+{
+  Article.update(
+    {title:req.params.token},
+    {title:req.body.title,content:req.body.content},
+    {overwrite:true},
+    function(err){
+      if(!err){
+        res.send("Succesfully updated Article.");
+      }
+      else{
+        res.send(err);
+      }
+    }
+  );
+})
+.patch(function(req,res)
+{
+  Article.update(
+    {title:req.params.token},
+    {$set:req.body},
+    function(err)
+    {
+      if(!err){
+        res.send("Succesfully updated Article.");
+      }
+      else{
+        res.send(err);
+      }
+    }
+
+  );
+})
+.delete(function(req,res)
+{
+  Article.deleteOne(
+    {title:req.params.token},
+    function(err)
+    {
+      if(!err){
+        res.send("Succesfully deleted Article.");
+      }
+      else{
+        res.send(err);
+      }
+    }
+  );
+});
+
+
